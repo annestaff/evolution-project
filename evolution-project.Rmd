@@ -1,10 +1,17 @@
+---
+title: "Evolution of demographic parameters and population stability"
+output: html_notebook
+---
+
+
+```{r}
 # initial values
 K <- 950 # equilibrium density
 lambda <- 1.5 # growth rate
 N_init <- 1000 # intial total density
 c <- -2 # complexity
 mu <- 0.01 # mutation rate
-# we will define later r as the relative density à savoir N/mean(K)
+# later, we define r as being the relative density à savoir N/mean(K)
 
 # population initiale
 population <- data.frame(K=rep(K, N_init), lambda=rep(lambda, N_init), c=rep(c, N_init))
@@ -123,5 +130,4 @@ plot(1:x, generations_with_mutation$N, type="b", pch=18, col="red", xlim=c(1, x)
 
 legend(1, max(c(generations$N, generations_with_mutation$N))-200, legend=c("Without mutation", "With mutation"), col=c("blue", "red"), lty=1:2, cex=0.8)
 
-x <- 200
-generations_with_mutation <- run_with_mutation(x, population)
+```
