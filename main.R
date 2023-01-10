@@ -81,7 +81,7 @@ next_generation_with_mutation <- function(population){
     for(i in 1:(ncol(next_gen)-1)) {
       next_gen[mutants,i] <- next_gen[mutants, i] + rnorm(1, 0, i*0.04)
     }
-    next_gen[mutants,4] <- with(next_gen[mutants,], calc_fitness(N, K, lambda, c))
+    next_gen[mutants,4] <- with(next_gen[mutants,], calc_fitness(nrow(next_gen), K, lambda, c))
   }
   return(next_gen)
 }
@@ -123,5 +123,6 @@ plot(1:x, generations_with_mutation$N, type="b", pch=18, col="red", xlim=c(1, x)
 
 legend(1, max(c(generations$N, generations_with_mutation$N))-200, legend=c("Without mutation", "With mutation"), col=c("blue", "red"), lty=1:2, cex=0.8)
 
-x <- 200
-generations_with_mutation <- run_with_mutation(x, population)
+# plot relative density of population with mutation
+plot(1:x, generations_with_mutation$r, type="b", pch=20, col="blue", xlab="Time in generations", ylab="Relative density (N/mean(K)", main="Evolution of the relative density over generations")
+
