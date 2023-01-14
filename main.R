@@ -59,7 +59,7 @@ next_generation <- function(population){
   #}
   next_gen <- apply(population, 1, offspring)
   next_gen <- bind_rows(next_gen)
-  next_gen$fitness <- apply(next_gen, 1, vectorised_fitness, N=nrow(next_gen))
+  next_gen$fitness <- apply(next_gen, 1, vector_fitness, N=nrow(next_gen))
   return(next_gen)
 }
 # test
@@ -123,25 +123,14 @@ run_with_mutation <- function(x, population) {
   return(generations_with_mutation)
 }
 
-x <- 300
-generations <- run(x, population)
-generations_with_mutation <- run_with_mutation(x, population)
+# x <- 20
+# generations <- run(x, population)
+# generations_with_mutation <- run_with_mutation(x, population)
 
-run_infinitely_while_saving_to_file <- function(population) {
-  cnt <- 0
-  population_with_mutation <- population
-  # with mutation
-  generations_with_mutation <- data.frame(
-    N=nrow(population_with_mutation), 
-    K_means=mean(population_with_mutation$K), 
-    K_sd=sd(population_with_mutation$K), 
-    lambda_means=mean(population_with_mutation$lambda), 
-    lambda_sd=sd(population_with_mutation$lambda), 
-    c_means=mean(population_with_mutation$c), 
-    c_sd=sd(population_with_mutation$c), 
-    fitness_means=mean(population_with_mutation$fitness), 
-    fitness_sd=sd(population_with_mutation$fitness), 
-    r=nrow(population_with_mutation)/mean(population_with_mutation$K))
+run_infinitely_while_saving_to_file <- function() {
+  population_with_mutation <- read.table("population.txt")
+  generations_with_mutation <- read.table("generations.txt")
+  cnt <- nrow(generations_with_mutation)
   while (TRUE) {
     population_with_mutation <- next_generation_with_mutation(population_with_mutation)
     generations_with_mutation <- rbind(generations_with_mutation, 
@@ -155,18 +144,19 @@ run_infinitely_while_saving_to_file <- function(population) {
                                          mean(population_with_mutation$fitness), 
                                          sd(population_with_mutation$fitness),
                                          nrow(population_with_mutation)/mean(population_with_mutation$K)))
-    write.table(generations_with_mutation, file=test.txt)
+    write.table(population, file="population.txt")
+    write.table(generations_with_mutation, file="generations.txt")
     cnt <- cnt + 1
     print(cnt)
   }
 }
 
-plot(1:x, generations$N, type="b", pch=19, col="blue", xlim=c(1, x), ylim=c(0, max(c(generations$N, generations_with_mutation$N))), xlab="Number of generations", ylab="Population size", main="Evolution of population sizes over generations with and without mutations")
-par(new = T)
-plot(1:x, generations_with_mutation$N, type="b", pch=18, col="red", xlim=c(1, x), ylim=c(0, max(c(generations$N, generations_with_mutation$N))), xlab="Number of generations", ylab="Population size")
+# plot(1:x, generations$N, type="b", pch=19, col="blue", xlim=c(1, x), ylim=c(0, max(c(generations$N, generations_with_mutation$N))), xlab="Number of generations", ylab="Population size", main="Evolution of population sizes over generations with and without mutations")
+# par(new = T)
+# plot(1:x, generations_with_mutation$N, type="b", pch=18, col="red", xlim=c(1, x), ylim=c(0, max(c(generations$N, generations_with_mutation$N))), xlab="Number of generations", ylab="Population size")
 
-legend(1, 200, legend=c("Without mutation", "With mutation"), col=c("blue", "red"), lty=1:2, cex=0.8)
+# legend(1, 200, legend=c("Without mutation", "With mutation"), col=c("blue", "red"), lty=1:2, cex=0.8)
 
 # plot relative density of population with mutation
-plot(1:x, generations_with_mutation$r, type="b", pch=20, col="blue", xlab="Time in generations", ylab="Relative density (N/mean(K)", main="Evolution of the relative density over generations")
+# plot(1:x, generations_with_mutation$r, type="b", pch=20, col="blue", xlab="Time in generations", ylab="Relative density (N/mean(K)", main="Evolution of the relative density over generations")
 
