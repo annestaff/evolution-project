@@ -1,0 +1,217 @@
+---
+title: "Evolution of demographic parameters and population stability"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+Computational biology project by Bianca BOI and Anne STAFF
+
+## Some plots:
+
+We left an endless loop running in a background process over night saving the resulting values to a textfile in order to retrieve it after we kill the process manually. This way we managed to get more than 30.000 generations!
+
+To reproduce this, simply run "over-night-code.R" (it is initialised with a seed of 420) for approx. 8h.
+
+```{r include=FALSE}
+gen <- read.table("generations.txt")
+gen$r <- gen$N / gen$K_means
+x <- nrow(gen)
+```
+
+```{r}
+plot(1:x, 
+     gen$N, 
+     type="b", 
+     pch=18, 
+     col="red", 
+     xlab="Number of generations", 
+     ylab="population size", 
+     main="Population size over generations")
+```
+```{r}
+```
+We display the size of the population through generations. We can see that there is a big peak around the 25000th generation.
+This peak is a bit strange and we will try to explain it thanks to other graphs.
+\newpage
+```{r}
+plot(24890:24898, 
+     gen$N[24890:24898], 
+     type="b", 
+     pch=18, 
+     col="red", 
+     xlab="Number of generations", 
+     ylab="population size", 
+     main="Population size (zoom on the weird peak)")
+```
+
+Some numbers for clarity (or confusion, that's up to the viewer to judge):
+```{r}
+gen[24890:24898,]
+```
+We see that the number of individuals is the highest at the 24895th generation, and right after it decrease abruptly.
+some values as K mean are not much evolving but, the C and the fitness are changing much we will see this later.
+
+```{r}
+plot(1:24880, 
+     gen$N[1:24880], 
+     type="b", 
+     pch=18, 
+     col="red", 
+     xlab="Number of generations", 
+     ylab="population size", 
+     main="Population size (snapshot before peak)")
+```
+Before the big peak the population tend to stabilize around 1000 individuals.
+```{r}
+# plot the relative density of population with mutation
+plot(1:x, 
+     gen$r, 
+     type="b", 
+     pch=20, 
+     col="blue", 
+     xlab="Time in generations", 
+     ylab="relative density N/mean(K)", 
+     main="Evolution of the relative density over generations")
+```
+The relative density follow the same problem, there is a big peak around the 25000th generation. the rest tend to stabilize around a very low value.
+```{r}
+# plot the relative density of population with mutation
+plot(1:24880, 
+     gen$r[1:24880], 
+     type="b", 
+     pch=20, 
+     col="blue", 
+     xlab="Time in generations", 
+     ylab="relative density N/mean(K)", 
+     main="Evolution of the relative density (snapshot before peak)")
+```
+As in the paper, the relative density starts out pretty chaotically but then stabilize around 1. 
+
+\newpage
+This function plots the mean values of the traits we monitored along with their corresponding standard deviation:
+```{r}
+plot_mean_with_sd <- function(means, 
+                              sd, 
+                              interval=NULL, 
+                              xlab="Time in generations", 
+                              ylab=NULL, 
+                              main=NULL) 
+{
+  if (is.null(interval)) {
+    interval <- 1:length(means)
+  }
+  plot(interval, 
+       means[interval], 
+       type = 'l', 
+       col="blue", 
+       ylim=c(min(means-sd), max(means+sd)), 
+       xlab=xlab, 
+       ylab=ylab, 
+       main=main)
+  
+  polygon(c(rev(interval), interval), 
+          c(rev(means[interval]-sd[interval]),
+            means[interval]+sd[interval]), 
+          col = 'grey80', border = NA)
+  
+  lines(interval, means[interval], col="blue")
+  lines(interval, means[interval]-sd[interval], lty = 'dashed', col = 'red')
+  lines(interval, means[interval]+sd[interval], lty = 'dashed', col = 'red')
+}
+```
+
+\newpage
+```{r}
+plot_mean_with_sd(gen$K_means, 
+                  gen$K_sd, 
+                  ylab="mean(K) \u00B1 sd(K)", 
+                  main="Mean equilibrium density per generation and their standard deviation")
+```
+
+The mean equilibrium density (K) are always between 949 and 950 as we have seen in the tabs, its value is not evolving that much. 
+The standard deviation of K is pretty close to the mean value.
+
+```{r}
+plot_mean_with_sd(gen$K_means, 
+                  gen$K_sd, 
+                  interval = 24880:24950,
+                  ylab="mean(K) \u00B1 sd(K)", 
+                  main="Equilibrium density (zoom around peak)")
+```
+The equilibrium density has a little decrease around the peak value,a,d we can see that the standard derivation become closer to the mean value at the peak.
+\newpage
+```{r}
+plot_mean_with_sd(gen$c_means, 
+                  gen$c_sd, 
+                  ylab="mean(c) \u00B1 sd(c)", 
+                  main="Mean complexity per generation and their standard deviation")
+```
+The mean complexity per generation is most of the time between -1 and 1 but has a big decrease around the 25000th generation. the value pass from 1 to -2 which is a huge gap.
+
+
+```{r}
+plot_mean_with_sd(gen$c_means, 
+                  gen$c_sd, 
+                  interval=24880:24900, 
+                  ylab="mean(c) \u00B1 sd(c)", 
+                  main="Complexity (zoom around peak)")
+```
+To see it more in details we've done a zoom on the big decrease.
+The value seems constant before the 24895th generation then the standard deviation become closer and closer from the mean value and there is a big decrease. The value falls to -2 abruptly.
+```{r}
+plot_mean_with_sd(gen$c_means, 
+                  gen$c_sd, 
+                  interval=24894:24898, 
+                  ylab="mean(c) \u00B1 sd(c)", 
+                  main="Complexity (closer zoom around peak)")
+```
+\newpage
+```{r}
+plot_mean_with_sd(gen$c_means, 
+                  gen$c_sd, 
+                  ylab="mean(lambda) \u00B1 sd(lambda)", 
+                  main="Mean growth rate per generation and their standard deviation")
+```
+As for the mean complexity per generation, the mean growth rate per generation knows also a big decrease around the 25000th generation.
+The curve looks approximately the same as the previous one.
+```{r}
+plot_mean_with_sd(gen$c_means, 
+                  gen$c_sd, 
+                  interval = 24880:24900,
+                  ylab="mean(lambda) \u00B1 sd(lambda)", 
+                  main="Growth rate (zoom around peak)")
+```
+The values go from 1 to -2 and the standard derivation is also becoming closer and closer to the mean value when we are closer from the big decrease.
+```{r}
+plot_mean_with_sd(gen$c_means, 
+                  gen$c_sd, 
+                  interval = 24894:24898,
+                  ylab="mean(lambda) \u00B1 sd(lambda)", 
+                  main="Growth rate (closer zoom around peak)")
+```
+
+\newpage
+```{r}
+plot(1:x, 
+     gen$fitness_means, 
+     type = 'l', 
+     col="blue", 
+     xlab="Time in generations", 
+     ylab="mean(fitness)", 
+     main="Mean fitness per generation")
+```
+The mean fitness is at the beginning really heterogeneous then tend to stabilize around 1 but knows a big peak always at the same generation and the values are again heterogeneous (but will probably tend to stabilize back).
+```{r}
+plot(1:24880, 
+     gen$fitness_means[1:24880], 
+     type = 'l', 
+     col="blue", 
+     xlab="Time in generations", 
+     ylab="mean(fitness)", 
+     main="Mean fitness per generation (snapshot before peak)")
+```
+we see more in details the way that the fitness tend to stabilize around 1.
+This result is exactly the same than the one in the paper.
+
+Moreover the big "peak" that we've meet in the experiment is probably linked to the way we've distributed the number of offspring per individuals.
+This is following a Poisson law and could absolutely take a high or low value, which could explain those results.

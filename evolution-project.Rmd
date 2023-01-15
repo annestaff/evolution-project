@@ -1,8 +1,8 @@
 ---
 title: "Evolution of demographic parameters and population stability"
 output:
-  html_notebook: default
   pdf_document: default
+  html_notebook: default
 ---
 Computational biology project by Bianca BOI and Anne STAFF
 
@@ -83,7 +83,7 @@ We define a function that computes the next generation for a given population, u
 next_generation <- function(population){
   next_gen <- apply(population, 1, offspring)
   next_gen <- bind_rows(next_gen)
-  next_gen$fitness <- apply(next_gen, 1, vectorised_fitness, N=nrow(next_gen))
+  next_gen$fitness <- apply(next_gen, 1, vector_fitness, N=nrow(next_gen))
   return(next_gen)
 }
 # test
@@ -159,64 +159,5 @@ plot(1:x, generations$N, type="b", pch=19, col="blue", xlim=c(1, x), ylim=c(0, m
 par(new = T)
 plot(1:x, generations_with_mutation$N, type="b", pch=18, col="red", xlim=c(1, x), ylim=c(0, max(c(generations$N, generations_with_mutation$N))), xlab="Number of generations", ylab="Population size")
 
-legend(1, max(c(generations$N, generations_with_mutation$N))-200, legend=c("Without mutation", "With mutation"), col=c("blue", "red"), lty=1:2, cex=0.8)
-```
-
-\newpage
-## Some plots:
-```{r include=FALSE}
-x <- 2000
-gen <- run_with_mutation(x, population, TRUE)
-```
-\newpage
-```{r}
-plot(1:x, gen$N, type="b", pch=18, col="red", xlab="Number of generations", ylab="population size", main="Population size over generations")
-```
-
-\newpage
-```{r}
-# plot the relative density of population with mutation
-plot(1:x, gen$r, type="b", pch=20, col="blue", xlab="Time in generations", ylab="the relative density N/mean(K)", main="Evolution of the relative density over generations")
-```
-Comparing with the paper, we noticed that the relative density should eventually become equal to 1 for large times. Unfortunately, over the small time span we covered, this is not the case for us.
-
-\newpage
-```{r}
-plot(1:x, gen$K_means, type = 'l', col="blue", ylim=c(min(gen$K_means-gen$K_sd), max(gen$K_means+gen$K_sd)), xlab="Time in generations", ylab="mean(K) \u00B1 sd(K)", main="Mean equilibrium density per generation and their standard deviation")
-# add fill
-polygon(c(x:1, 1:x), c(rev(gen$K_means-gen$K_sd), gen$K_means+gen$K_sd), col = 'grey80', border = NA)
-lines(1:x, gen$K_means, col="blue")
-# intervals
-lines(1:x, gen$K_means-gen$K_sd, lty = 'dashed', col = 'red')
-lines(1:x, gen$K_means+gen$K_sd, lty = 'dashed', col = 'red')
-```
-\newpage
-```{r}
-plot(1:x, gen$c_means, type = 'l', col="blue", ylim=c(min(gen$c_means-gen$c_sd), max(gen$c_means+gen$c_sd)), xlab="Time in generations", ylab="mean(c) \u00B1 sd(c)", main="Mean complexity per generation and their standard deviation")
-# add fill
-polygon(c(x:1, 1:x), c(rev(gen$c_means-gen$c_sd), gen$c_means+gen$c_sd), col = 'grey80', border = NA)
-lines(1:x, gen$c_means, col="blue")
-# intervals
-lines(1:x, gen$c_means-gen$c_sd, lty = 'dashed', col = 'red')
-lines(1:x, gen$c_means+gen$c_sd, lty = 'dashed', col = 'red')
-```
-\newpage
-```{r}
-plot(1:x, gen$lambda_means, type = 'l', col="blue", ylim=c(min(gen$lambda_means-gen$lambda_sd), max(gen$lambda_means+gen$lambda_sd)), xlab="Time in generations", ylab="mean(lambda) \u00B1 sd(lambda)", main="Mean growth rate per generation and their standard deviation")
-# add fill
-polygon(c(x:1, 1:x), c(rev(gen$lambda_means-gen$lambda_sd), gen$lambda_means+gen$lambda_sd), col = 'grey80', border = NA)
-lines(1:x, gen$lambda_means, col="blue")
-# intervals
-lines(1:x, gen$lambda_means-gen$lambda_sd, lty = 'dashed', col = 'red')
-lines(1:x, gen$lambda_means+gen$lambda_sd, lty = 'dashed', col = 'red')
-```
-\newpage
-```{r}
-plot(1:x, gen$fitness_means, type = 'l', col="blue", ylim=c(min(gen$fitness_means-gen$fitness_sd), max(gen$fitness_means+gen$fitness_sd)), xlab="Time in generations", ylab="mean(fitness)", main="Mean fitness per generation")
-# add fill
-# polygon(c(x:1, 1:x), c(rev(gen$fitness_means-gen$fitness_sd), gen$fitness_means+gen$fitness_sd), col = 'grey80', border = NA)
-# lines(1:x, gen$fitness_means, col="blue")
-# intervals
-# lines(1:x, gen$fitness_means-gen$fitness_sd, lty = 'dashed', col = 'red')
-# lines(1:x, gen$fitness_means+gen$fitness_sd, lty = 'dashed', col = 'red')
+legend(1, 200, legend=c("Without mutation", "With mutation"), col=c("blue", "red"), lty=1:2, cex=0.8)
 ```

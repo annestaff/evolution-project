@@ -1,0 +1,200 @@
+---
+title: "Evolution of demographic parameters and population stability"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+Computational biology project by Bianca BOI and Anne STAFF
+
+## Some plots:
+
+We left an endless loop running in a background process over night saving the resulting values to a textfile in order to retrieve it after we kill the process manually. This way we managed to get more than 30.000 generations!
+
+To reproduce this, simply run "CopyOfmain.R" (it is initialised with a seed of 420) for approx. 8h.
+
+```{r include=FALSE}
+gen <- read.table("generations.txt")
+gen$r <- gen$N / gen$K_means
+x <- nrow(gen)
+```
+\newpage
+```{r}
+plot(1:x, 
+     gen$N, 
+     type="b", 
+     pch=18, 
+     col="red", 
+     xlab="Number of generations", 
+     ylab="population size", 
+     main="Population size over generations")
+```
+```{r}
+plot(24890:24898, 
+     gen$N[24890:24898], 
+     type="b", 
+     pch=18, 
+     col="red", 
+     xlab="Number of generations", 
+     ylab="population size", 
+     main="Population size (zoom on the weird peak)")
+```
+
+Some numbers for clarity (or confusion, that's up to the viewer to judge):
+```{r}
+gen[24890:24898,]
+```
+
+
+```{r}
+plot(1:24880, 
+     gen$N[1:24880], 
+     type="b", 
+     pch=18, 
+     col="red", 
+     xlab="Number of generations", 
+     ylab="population size", 
+     main="Population size (snapshot before peak)")
+```
+
+\newpage
+```{r}
+# plot the relative density of population with mutation
+plot(1:x, 
+     gen$r, 
+     type="b", 
+     pch=20, 
+     col="blue", 
+     xlab="Time in generations", 
+     ylab="relative density N/mean(K)", 
+     main="Evolution of the relative density over generations")
+```
+```{r}
+# plot the relative density of population with mutation
+plot(1:24880, 
+     gen$r[1:24880], 
+     type="b", 
+     pch=20, 
+     col="blue", 
+     xlab="Time in generations", 
+     ylab="relative density N/mean(K)", 
+     main="Evolution of the relative density (snapshot before peak)")
+```
+
+As in the paper, the relative density starts out pretty chaotically but then stabilises around 1. 
+
+\newpage
+This function plots the mean values of the traits we monitored along with their corresponding standard deviation:
+```{r}
+plot_mean_with_sd <- function(means, 
+                              sd, 
+                              interval=NULL, 
+                              xlab="Time in generations", 
+                              ylab=NULL, 
+                              main=NULL) 
+{
+  if (is.null(interval)) {
+    interval <- 1:length(means)
+  }
+  plot(interval, 
+       means[interval], 
+       type = 'l', 
+       col="blue", 
+       ylim=c(min(means-sd), max(means+sd)), 
+       xlab=xlab, 
+       ylab=ylab, 
+       main=main)
+  
+  polygon(c(rev(interval), interval), 
+          c(rev(means[interval]-sd[interval]),
+            means[interval]+sd[interval]), 
+          col = 'grey80', border = NA)
+  
+  lines(interval, means[interval], col="blue")
+  lines(interval, means[interval]-sd[interval], lty = 'dashed', col = 'red')
+  lines(interval, means[interval]+sd[interval], lty = 'dashed', col = 'red')
+}
+```
+
+\newpage
+```{r}
+plot_mean_with_sd(gen$K_means, 
+                  gen$K_sd, 
+                  ylab="mean(K) \u00B1 sd(K)", 
+                  main="Mean equilibrium density per generation and their standard deviation")
+```
+```{r}
+plot_mean_with_sd(gen$K_means, 
+                  gen$K_sd, 
+                  interval = 24880:24950,
+                  ylab="mean(K) \u00B1 sd(K)", 
+                  main="Equilibrium density (zoom around peak)")
+```
+
+\newpage
+```{r}
+plot_mean_with_sd(gen$c_means, 
+                  gen$c_sd, 
+                  ylab="mean(c) \u00B1 sd(c)", 
+                  main="Mean complexity per generation and their standard deviation")
+```
+
+
+```{r}
+plot_mean_with_sd(gen$c_means, 
+                  gen$c_sd, 
+                  interval=24880:24900, 
+                  ylab="mean(c) \u00B1 sd(c)", 
+                  main="Complexity (zoom around peak)")
+```
+
+```{r}
+plot_mean_with_sd(gen$c_means, 
+                  gen$c_sd, 
+                  interval=24894:24898, 
+                  ylab="mean(c) \u00B1 sd(c)", 
+                  main="Complexity (closer zoom around peak)")
+```
+\newpage
+```{r}
+plot_mean_with_sd(gen$c_means, 
+                  gen$c_sd, 
+                  ylab="mean(lambda) \u00B1 sd(lambda)", 
+                  main="Mean growth rate per generation and their standard deviation")
+```
+
+```{r}
+plot_mean_with_sd(gen$c_means, 
+                  gen$c_sd, 
+                  interval = 24880:24900,
+                  ylab="mean(lambda) \u00B1 sd(lambda)", 
+                  main="Growth rate (zoom around peak)")
+```
+
+```{r}
+plot_mean_with_sd(gen$c_means, 
+                  gen$c_sd, 
+                  interval = 24894:24898,
+                  ylab="mean(lambda) \u00B1 sd(lambda)", 
+                  main="Growth rate (closer zoom around peak)")
+```
+
+\newpage
+```{r}
+plot(1:x, 
+     gen$fitness_means, 
+     type = 'l', 
+     col="blue", 
+     xlab="Time in generations", 
+     ylab="mean(fitness)", 
+     main="Mean fitness per generation")
+```
+
+```{r}
+plot(1:24880, 
+     gen$fitness_means[1:24880], 
+     type = 'l', 
+     col="blue", 
+     xlab="Time in generations", 
+     ylab="mean(fitness)", 
+     main="Mean fitness per generation (snapshot before peak)")
+```
